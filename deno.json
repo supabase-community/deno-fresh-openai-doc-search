@@ -1,4 +1,5 @@
 {
+  "lock": false,
   "tasks": {
     "start": "deno run -A --watch=static/,routes/ dev.ts",
     "embeddings": "deno run --allow-read --allow-env --allow-net tools/generate-embeddings.ts"
