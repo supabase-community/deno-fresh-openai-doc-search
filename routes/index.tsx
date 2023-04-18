@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Fresh App</title>
+        <title>Deno Fresh OpenAI Vector Search</title>
       </Head>
       <div class="p-4 mx-auto max-w-screen-md">
         <h1 class="text-3xl">Deno Fresh OpenAI Vector Search</h1>
