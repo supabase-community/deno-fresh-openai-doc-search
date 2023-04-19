@@ -169,16 +169,13 @@ export const handler = async (
     });
   } catch (err: unknown) {
     if (err instanceof UserError) {
-      return new Response(
-        JSON.stringify({
-          error: err.message,
-          data: err.data,
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      return Response.json({
+        error: err.message,
+        data: err.data,
+      }, {
+        status: 400,
+        headers: corsHeaders,
+      });
     } else if (err instanceof ApplicationError) {
       // Print out application errors with their additional data
       console.error(`${err.message}: ${JSON.stringify(err.data)}`);
@@ -188,14 +185,11 @@ export const handler = async (
     }
 
     // TODO: include more response info in debug environments
-    return new Response(
-      JSON.stringify({
-        error: "There was an error processing your request",
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
+    return Response.json({
+      error: "There was an error processing your request",
+    }, {
+      status: 500,
+      headers: corsHeaders,
+    });
   }
 };
