@@ -60,7 +60,6 @@ export default function SearchDialog() {
         <form onSubmit={onSubmit}>
           <input
             name="search"
-            value={search}
             ref={inputRef}
             placeholder="Search"
             disabled={!IS_BROWSER}
