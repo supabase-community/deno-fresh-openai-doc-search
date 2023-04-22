@@ -61,7 +61,6 @@ export default function SearchDialog() {
           <input
             name="search"
             value={search}
-            // @ts-ignore not sure why complaing
             ref={inputRef}
             placeholder="Search"
             disabled={!IS_BROWSER}
