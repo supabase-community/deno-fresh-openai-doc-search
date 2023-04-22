@@ -9,8 +9,7 @@ export default function SearchDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [answer, setAnswer] = useState<string>("");
 
-  // @ts-ignore TODO: how to type this?
-  const onSubmit = (e) => {
+  const onSubmit = (e: Event) => {
     e.preventDefault();
     console.log(search);
     setAnswer("");
@@ -29,7 +28,7 @@ export default function SearchDialog() {
     }
 
     eventSource.addEventListener("error", handleError);
-    eventSource.addEventListener("message", (e: any) => {
+    eventSource.addEventListener("message", (e: MessageEvent) => {
       try {
         setIsLoading(false);
 
