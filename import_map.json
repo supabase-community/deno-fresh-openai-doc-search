@@ -13,6 +13,17 @@
     "sse.js": "https://esm.sh/sse.js@0.6.1",
     "std/": "https://deno.land/std@0.184.0/",
     "twind": "https://esm.sh/twind@0.16.19",
-    "twind/": "https://esm.sh/twind@0.16.19/"
+    "twind/": "https://esm.sh/twind@0.16.19/",
+    "xhr": "https://deno.land/x/xhr@0.2.1/mod.ts",
+    "github-slugger": "https://esm.sh/github-slugger@2.0.0",
+    "mdast-util-from-markdown": "https://esm.sh/mdast-util-from-markdown@1.3.0",
+    "mdast-util-mdx": "https://esm.sh/mdast-util-mdx@2.0.1",
+    "mdast-util-to-markdown": "https://esm.sh/mdast-util-to-markdown@1.5.0",
+    "mdast-util-to-string": "https://esm.sh/mdast-util-to-string@3.2.0",
+    "micromark-extension-mdxjs": "https://esm.sh/micromark-extension-mdxjs@1.0.0",
+    "unist-builder": "https://esm.sh/unist-builder@3.0.1",
+    "unist-util-filter": "https://esm.sh/unist-util-filter@4.0.1",
+    "types/mdast": "npm:@types/mdast@3.0.11",
+    "types/estree": "npm:@types/estree@1.0.0"
   }
 }

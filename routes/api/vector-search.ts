@@ -1,5 +1,5 @@
 import { HandlerContext } from "$fresh/server.ts";
-import "https://deno.land/x/xhr@0.2.1/mod.ts";
+import "xhr";
 import { createClient } from "@supabase/supabase-js";
 import { codeBlock, oneLine } from "commmon-tags";
 import GPT3Tokenizer from "gpt3-tokenizer";

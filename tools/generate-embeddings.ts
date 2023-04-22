@@ -1,23 +1,19 @@
 import "std/dotenv/load.ts";
-import "https://deno.land/x/xhr@0.2.1/mod.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.5.0";
+import "xhr";
+import { createClient } from "@supabase/supabase-js";
 import { createHash } from "node:crypto";
 import { walk } from "std/fs/walk.ts";
-import { ObjectExpression } from "https://esm.sh/v115/@types/estree@1.0.0/index.d.ts";
-import GithubSlugger from "https://esm.sh/github-slugger@2.0.0";
-import {
-  Content,
-  Root,
-} from "https://esm.sh/v115/@types/mdast@3.0.11/index.d.ts";
-import { fromMarkdown } from "https://esm.sh/mdast-util-from-markdown@1.3.0";
-import { mdxFromMarkdown, MdxjsEsm } from "https://esm.sh/mdast-util-mdx@2.0.1";
-import { toMarkdown } from "https://esm.sh/mdast-util-to-markdown@1.5.0";
-import { toString } from "https://esm.sh/mdast-util-to-string@3.2.0";
-import { mdxjs } from "https://esm.sh/micromark-extension-mdxjs@1.0.0";
-import "openai";
-import { Configuration, OpenAIApi } from "https://esm.sh/openai@3.1.0";
-import { u } from "https://esm.sh/unist-builder@3.0.1";
-import { filter } from "https://esm.sh/unist-util-filter@4.0.1";
+import GithubSlugger from "github-slugger";
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { mdxFromMarkdown, MdxjsEsm } from "mdast-util-mdx";
+import { toMarkdown } from "mdast-util-to-markdown";
+import { toString } from "mdast-util-to-string";
+import { mdxjs } from "micromark-extension-mdxjs";
+import { Configuration, OpenAIApi } from "openai";
+import { u } from "unist-builder";
+import { filter } from "unist-util-filter";
+import type { Content, Root } from "types/mdast";
+import type { ObjectExpression } from "types/estree";
 
 /**
  * Extracts ES literals from an `estree` `ObjectExpression`
