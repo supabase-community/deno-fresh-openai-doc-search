@@ -1,7 +1,8 @@
-import "https://deno.land/std@0.182.0/dotenv/load.ts";
+import "std/dotenv/load.ts";
 import "https://deno.land/x/xhr@0.2.1/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.5.0";
-import { createHash } from "https://deno.land/std@0.110.0/node/crypto.ts";
+import { createHash } from "node:crypto";
+import { walk } from "std/fs/walk.ts";
 import { ObjectExpression } from "https://esm.sh/v115/@types/estree@1.0.0/index.d.ts";
 import GithubSlugger from "https://esm.sh/github-slugger@2.0.0";
 import {
@@ -15,15 +16,8 @@ import { toString } from "https://esm.sh/mdast-util-to-string@3.2.0";
 import { mdxjs } from "https://esm.sh/micromark-extension-mdxjs@1.0.0";
 import "openai";
 import { Configuration, OpenAIApi } from "https://esm.sh/openai@3.1.0";
-import {
-  basename,
-  dirname,
-  join,
-} from "https://deno.land/std@0.183.0/path/mod.ts";
 import { u } from "https://esm.sh/unist-builder@3.0.1";
 import { filter } from "https://esm.sh/unist-util-filter@4.0.1";
-
-const ignoredFiles = ["routes/404.mdx"];
 
 /**
  * Extracts ES literals from an `estree` `ObjectExpression`
@@ -136,9 +130,9 @@ type ProcessedMdx = {
  * and splits it into sub-sections based on criteria.
  */
 function processMdxForSearch(content: string): ProcessedMdx {
-  const checksum = createHash("sha256").update(content).digest(
-    "base64",
-  ) as string;
+  const checksum = createHash("sha256")
+    .update(content)
+    .digest("base64");
 
   const mdxTree = fromMarkdown(content, {
     extensions: [mdxjs()],
@@ -194,52 +188,6 @@ function processMdxForSearch(content: string): ProcessedMdx {
   };
 }
 
-type WalkEntry = {
-  path: string;
-  parentPath?: string;
-};
-
-async function walk(dir: string, parentPath?: string): Promise<WalkEntry[]> {
-  const immediateFiles: Array<string> = [];
-  for await (const dirEntry of Deno.readDir(dir)) {
-    immediateFiles.push(dirEntry.name);
-  }
-
-  const recursiveFiles = await Promise.all(
-    immediateFiles.map(async (file) => {
-      const path = join(dir, file);
-      const stats = await Deno.stat(path);
-      if (stats.isDirectory) {
-        // Keep track of document hierarchy (if this dir has corresponding doc file)
-        const docPath = `${basename(path)}.mdx`;
-
-        return walk(
-          path,
-          immediateFiles.includes(docPath)
-            ? join(dirname(path), docPath)
-            : parentPath,
-        );
-      } else if (stats.isFile) {
-        return [
-          {
-            path: path,
-            parentPath,
-          },
-        ];
-      } else {
-        return [];
-      }
-    }),
-  );
-
-  const flattenedFiles = recursiveFiles.reduce(
-    (all, folderContents) => all.concat(folderContents),
-    [],
-  );
-
-  return flattenedFiles.sort((a, b) => a.path.localeCompare(b.path));
-}
-
 abstract class BaseEmbeddingSource {
   checksum?: string;
   meta?: Meta;
@@ -276,9 +224,7 @@ class MarkdownEmbeddingSource extends BaseEmbeddingSource {
   }
 
   async load() {
-    const decoder = new TextDecoder("utf-8");
-    const data = await Deno.readFile(this.filePath);
-    const contents = decoder.decode(data);
+    const contents = await Deno.readTextFile(this.filePath);
 
     const { checksum, meta, sections } = processMdxForSearch(contents);
 
@@ -318,12 +264,10 @@ async function generateEmbeddings() {
     },
   );
 
-  const embeddingSources: EmbeddingSource[] = [
-    ...(await walk("docs"))
-      .filter(({ path }) => /\.mdx?$/.test(path))
-      .filter(({ path }) => !ignoredFiles.includes(path))
-      .map((entry) => new MarkdownEmbeddingSource("guide", entry.path)),
-  ];
+  const embeddingSources: EmbeddingSource[] = [];
+  for await (const { path } of walk("./docs", { includeDirs: false })) {
+    embeddingSources.push(new MarkdownEmbeddingSource("guide", path));
+  }
 
   console.log(`Discovered ${embeddingSources.length} docs`);
 
