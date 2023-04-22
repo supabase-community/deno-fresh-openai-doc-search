@@ -356,12 +356,12 @@ async function generateEmbeddings() {
             `[${path}] Parent page has changed. Updating to '${parentPath}'...`,
           );
           const { data: parentPage } = await supabaseClient
-              .from("dfods_page")
-              .select()
-              .filter("path", "eq", parentPath)
-              .limit(1)
-              .maybeSingle()
-              .throwOnError();
+            .from("dfods_page")
+            .select()
+            .filter("path", "eq", parentPath)
+            .limit(1)
+            .maybeSingle()
+            .throwOnError();
 
           await supabaseClient
             .from("dfods_page")
@@ -385,12 +385,12 @@ async function generateEmbeddings() {
       }
 
       const { data: parentPage } = await supabaseClient
-          .from("dfods_page")
-          .select()
-          .filter("path", "eq", parentPath)
-          .limit(1)
-          .maybeSingle()
-          .throwOnError();
+        .from("dfods_page")
+        .select()
+        .filter("path", "eq", parentPath)
+        .limit(1)
+        .maybeSingle()
+        .throwOnError();
 
       // Create/update page record. Intentionally clear checksum until we
       // have successfully generated all page sections.
@@ -442,19 +442,19 @@ async function generateEmbeddings() {
           const [responseData] = embeddingResponse.data.data;
 
           await supabaseClient
-              .from("dfods_page_section")
-              .insert({
-                page_id: page.id,
-                slug,
-                heading,
-                content,
-                token_count: embeddingResponse.data.usage.total_tokens,
-                embedding: responseData.embedding,
-              })
-              .select()
-              .limit(1)
-              .single()
-              .throwOnError();
+            .from("dfods_page_section")
+            .insert({
+              page_id: page.id,
+              slug,
+              heading,
+              content,
+              token_count: embeddingResponse.data.usage.total_tokens,
+              embedding: responseData.embedding,
+            })
+            .select()
+            .limit(1)
+            .single()
+            .throwOnError();
         } catch (err) {
           // TODO: decide how to better handle failed embeddings
           console.error(
