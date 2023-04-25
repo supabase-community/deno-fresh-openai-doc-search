@@ -275,16 +275,13 @@ async function generateEmbeddings() {
       const { checksum, meta, sections } = await embeddingSource.load();
 
       // Check for existing page in DB and compare checksums
-      const { error: fetchPageError, data: existingPage } = await supabaseClient
+      const { data: existingPage } = await supabaseClient
         .from("dfods_page")
         .select("id, path, checksum, parentPage:parent_page_id(id, path)")
         .filter("path", "eq", path)
         .limit(1)
-        .maybeSingle();
-
-      if (fetchPageError) {
-        throw fetchPageError;
-      }
+        .maybeSingle()
+        .throwOnError();
 
       // deno-lint-ignore no-explicit-any
       type Singular<T> = T extends any[] ? undefined : T;
@@ -300,26 +297,19 @@ async function generateEmbeddings() {
           console.log(
             `[${path}] Parent page has changed. Updating to '${parentPath}'...`,
           );
-          const { error: fetchParentPageError, data: parentPage } =
-            await supabaseClient
-              .from("dfods_page")
-              .select()
-              .filter("path", "eq", parentPath)
-              .limit(1)
-              .maybeSingle();
+          const { data: parentPage } = await supabaseClient
+            .from("dfods_page")
+            .select()
+            .filter("path", "eq", parentPath)
+            .limit(1)
+            .maybeSingle()
+            .throwOnError();
 
-          if (fetchParentPageError) {
-            throw fetchParentPageError;
-          }
-
-          const { error: updatePageError } = await supabaseClient
+          await supabaseClient
             .from("dfods_page")
             .update({ parent_page_id: parentPage?.id })
-            .filter("id", "eq", existingPage.id);
-
-          if (updatePageError) {
-            throw updatePageError;
-          }
+            .filter("id", "eq", existingPage.id)
+            .throwOnError();
         }
         continue;
       }
@@ -329,31 +319,24 @@ async function generateEmbeddings() {
           `[${path}] Docs have changed, removing old page sections and their embeddings`,
         );
 
-        const { error: deletePageSectionError } = await supabaseClient
+        await supabaseClient
           .from("dfods_page_section")
           .delete()
-          .filter("page_id", "eq", existingPage.id);
-
-        if (deletePageSectionError) {
-          throw deletePageSectionError;
-        }
+          .filter("page_id", "eq", existingPage.id)
+          .throwOnError();
       }
 
-      const { error: fetchParentPageError, data: parentPage } =
-        await supabaseClient
-          .from("dfods_page")
-          .select()
-          .filter("path", "eq", parentPath)
-          .limit(1)
-          .maybeSingle();
-
-      if (fetchParentPageError) {
-        throw fetchParentPageError;
-      }
+      const { data: parentPage } = await supabaseClient
+        .from("dfods_page")
+        .select()
+        .filter("path", "eq", parentPath)
+        .limit(1)
+        .maybeSingle()
+        .throwOnError();
 
       // Create/update page record. Intentionally clear checksum until we
       // have successfully generated all page sections.
-      const { error: upsertPageError, data: page } = await supabaseClient
+      const { data: page } = await supabaseClient
         .from("dfods_page")
         .upsert(
           {
@@ -368,11 +351,8 @@ async function generateEmbeddings() {
         )
         .select()
         .limit(1)
-        .single();
-
-      if (upsertPageError) {
-        throw upsertPageError;
-      }
+        .single()
+        .throwOnError();
 
       console.log(
         `[${path}] Adding ${sections.length} page sections (with embeddings)`,
@@ -403,7 +383,7 @@ async function generateEmbeddings() {
 
           const [responseData] = embeddingResponse.data.data;
 
-          const { error: insertPageSectionError } = await supabaseClient
+          await supabaseClient
             .from("dfods_page_section")
             .insert({
               page_id: page.id,
@@ -415,11 +395,8 @@ async function generateEmbeddings() {
             })
             .select()
             .limit(1)
-            .single();
-
-          if (insertPageSectionError) {
-            throw insertPageSectionError;
-          }
+            .single()
+            .throwOnError();
         } catch (err) {
           // TODO: decide how to better handle failed embeddings
           console.error(
@@ -436,14 +413,11 @@ async function generateEmbeddings() {
       }
 
       // Set page checksum so that we know this page was stored successfully
-      const { error: updatePageError } = await supabaseClient
+      await supabaseClient
         .from("dfods_page")
         .update({ checksum })
-        .filter("id", "eq", page.id);
-
-      if (updatePageError) {
-        throw updatePageError;
-      }
+        .filter("id", "eq", page.id)
+        .throwOnError();
     } catch (err) {
       console.error(
         `Page '${path}' or one/multiple of its page sections failed to store properly. Page has been marked with null checksum to indicate that it needs to be re-generated.`,
