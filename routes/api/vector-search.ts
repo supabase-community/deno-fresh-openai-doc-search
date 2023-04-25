@@ -40,13 +40,7 @@ export const handler = async (
       );
     }
 
-    const requestData = await req.json();
-
-    if (!requestData) {
-      throw new UserError("Missing request data");
-    }
-
-    const { query } = requestData;
+    const query = new URL(req.url).searchParams.get("query");
 
     if (!query) {
       throw new UserError("Missing query in request data");
