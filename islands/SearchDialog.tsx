@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useRef, useState } from "preact/hooks";
 import { IS_BROWSER } from "$fresh/runtime.ts";
 import { Button } from "../components/Button.tsx";
 import type { CreateCompletionResponse } from "openai";
@@ -8,8 +8,11 @@ export default function SearchDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [answer, setAnswer] = useState<string>("");
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const onSubmit = (e: Event) => {
     e.preventDefault();
+    setSearch(inputRef.current!.value);
     console.log(search);
     setAnswer("");
     setIsLoading(true);
@@ -50,9 +53,7 @@ export default function SearchDialog() {
         <form onSubmit={onSubmit}>
           <input
             name="search"
-            value={search}
-            // @ts-ignore not sure why complaing
-            onInput={(e) => setSearch(e.target?.value ?? "")}
+            ref={inputRef}
             placeholder="Search"
             disabled={!IS_BROWSER}
             class={`px-3 py-2 bg-white rounded border(gray-500 2) disabled:(opacity-50 cursor-not-allowed)`}
