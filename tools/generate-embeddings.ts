@@ -342,6 +342,7 @@ async function generateEmbeddings() {
         .maybeSingle()
         .throwOnError();
 
+      // deno-lint-ignore no-explicit-any
       type Singular<T> = T extends any[] ? undefined : T;
 
       // We use checksum to determine if this page & its sections need to be regenerated
