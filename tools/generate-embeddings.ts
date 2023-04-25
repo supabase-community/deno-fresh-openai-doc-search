@@ -1,3 +1,4 @@
+// @ts-nocheck @todo Fix typings in `extractMetaExport()`
 import "std/dotenv/load.ts";
 import "xhr";
 import { createClient } from "@supabase/supabase-js";
