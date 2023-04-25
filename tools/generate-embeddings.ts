@@ -381,7 +381,7 @@ async function generateEmbeddings() {
           .from("dfods_page_section")
           .delete()
           .filter("page_id", "eq", existingPage.id)
-          .throwOnError;
+          .throwOnError();
       }
 
       const { data: parentPage } = await supabaseClient
