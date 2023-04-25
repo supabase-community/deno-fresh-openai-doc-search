@@ -1,7 +1,6 @@
 import { useSignal } from "@preact/signals";
 import { IS_BROWSER } from "$fresh/runtime.ts";
 import { Button } from "../components/Button.tsx";
-import { SSE } from "sse.js";
 import type { CreateCompletionResponse } from "openai";
 
 export default function SearchDialog() {
@@ -9,8 +8,9 @@ export default function SearchDialog() {
   const isLoading = useSignal(false);
   const answer = useSignal("");
 
-  // @ts-ignore TODO: how to type this?
-  const onSubmit = (e) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const onSubmit = (e: Event) => {
     e.preventDefault();
     console.log(search.value);
     answer.value = "";
@@ -29,11 +29,12 @@ export default function SearchDialog() {
     }
 
     eventSource.addEventListener("error", handleError);
-    eventSource.addEventListener("message", (e: any) => {
+    eventSource.addEventListener("message", (e: MessageEvent) => {
       try {
         isLoading.value = false;
 
         if (e.data === "[DONE]") {
+          eventSource.close();
           return;
         }
 
@@ -46,8 +47,6 @@ export default function SearchDialog() {
       }
     });
 
-    eventSource.stream();
-
     isLoading.value = true;
   };
 
@@ -57,9 +56,7 @@ export default function SearchDialog() {
         <form onSubmit={onSubmit}>
           <input
             name="search"
-            value={search}
-            // @ts-ignore not sure why complaing
-            onInput={(e) => search.value = e.target?.value ?? ""}
+            ref={inputRef}
             placeholder="Search"
             disabled={!IS_BROWSER}
             class={`px-3 py-2 bg-white rounded border(gray-500 2) disabled:(opacity-50 cursor-not-allowed)`}
