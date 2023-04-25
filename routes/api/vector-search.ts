@@ -40,13 +40,7 @@ export async function handler(req: Request): Promise<Response> {
       return new Response("ok", { headers: corsHeaders });
     }
 
-    const requestData = await req.json();
-
-    if (!requestData) {
-      throw new UserError("Missing request data");
-    }
-
-    const { query } = requestData;
+    const query = new URL(req.url).searchParams.get("query");
 
     if (!query) {
       throw new UserError("Missing query in request data");
