@@ -1,4 +1,3 @@
-import { HandlerContext } from "$fresh/server.ts";
 import "xhr";
 import { createClient } from "@supabase/supabase-js";
 import { codeBlock, oneLine } from "commmon-tags";
