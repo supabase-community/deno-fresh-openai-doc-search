@@ -10,54 +10,44 @@ const openAiKey = Deno.env.get("OPENAI_KEY");
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
+if (!openAiKey) {
+  throw new ApplicationError("Missing environment variable OPENAI_KEY");
+}
+
+if (!supabaseUrl) {
+  throw new ApplicationError("Missing environment variable SUPABASE_URL");
+}
+
+if (!supabaseServiceKey) {
+  throw new ApplicationError(
+    "Missing environment variable SUPABASE_SERVICE_ROLE_KEY",
+  );
+}
+
+const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
+const openAiConfiguration = new Configuration({ apiKey: openAiKey });
+const openai = new OpenAIApi(openAiConfiguration);
+
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
 
-export const handler = async (
-  req: Request,
-  _ctx: HandlerContext,
-): Promise<Response> => {
+export async function handler(req: Request): Promise<Response> {
   try {
     // Handle CORS
     if (req.method === "OPTIONS") {
       return new Response("ok", { headers: corsHeaders });
     }
 
-    if (!openAiKey) {
-      throw new ApplicationError("Missing environment variable OPENAI_KEY");
-    }
-
-    if (!supabaseUrl) {
-      throw new ApplicationError("Missing environment variable SUPABASE_URL");
-    }
-
-    if (!supabaseServiceKey) {
-      throw new ApplicationError(
-        "Missing environment variable SUPABASE_SERVICE_ROLE_KEY",
-      );
-    }
-
-    const requestData = await req.json();
-
-    if (!requestData) {
-      throw new UserError("Missing request data");
-    }
-
-    const { query } = requestData;
+    const query = new URL(req.url).searchParams.get("query");
 
     if (!query) {
       throw new UserError("Missing query in request data");
     }
 
     const sanitizedQuery = query.trim();
-
-    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
-
-    const configuration = new Configuration({ apiKey: openAiKey });
-    const openai = new OpenAIApi(configuration);
 
     // Moderate the content to comply with OpenAI T&C
     const moderationResponse = await openai.createModeration({
@@ -105,8 +95,7 @@ export const handler = async (
     let tokenCount = 0;
     let contextText = "";
 
-    for (let i = 0; i < pageSections.length; i++) {
-      const pageSection = pageSections[i];
+    for (const pageSection of pageSections) {
       const content = pageSection.content;
       const encoded = tokenizer.encode(content);
       tokenCount += encoded.text.length;
@@ -146,6 +135,7 @@ export const handler = async (
       stream: true,
     };
 
+    // The Fetch API allows for easier response streaming over the OpenAI client.
     const response = await fetch("https://api.openai.com/v1/completions", {
       headers: {
         Authorization: `Bearer ${openAiKey}`,
@@ -192,4 +182,4 @@ export const handler = async (
       headers: corsHeaders,
     });
   }
-};
+}

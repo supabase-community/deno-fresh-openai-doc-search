@@ -285,6 +285,7 @@ async function generateEmbeddings() {
         throw fetchPageError;
       }
 
+      // deno-lint-ignore no-explicit-any
       type Singular<T> = T extends any[] ? undefined : T;
 
       // We use checksum to determine if this page & its sections need to be regenerated
@@ -401,20 +402,19 @@ async function generateEmbeddings() {
 
           const [responseData] = embeddingResponse.data.data;
 
-          const { error: insertPageSectionError, data: pageSection } =
-            await supabaseClient
-              .from("dfods_page_section")
-              .insert({
-                page_id: page.id,
-                slug,
-                heading,
-                content,
-                token_count: embeddingResponse.data.usage.total_tokens,
-                embedding: responseData.embedding,
-              })
-              .select()
-              .limit(1)
-              .single();
+          const { error: insertPageSectionError } = await supabaseClient
+            .from("dfods_page_section")
+            .insert({
+              page_id: page.id,
+              slug,
+              heading,
+              content,
+              token_count: embeddingResponse.data.usage.total_tokens,
+              embedding: responseData.embedding,
+            })
+            .select()
+            .limit(1)
+            .single();
 
           if (insertPageSectionError) {
             throw insertPageSectionError;
