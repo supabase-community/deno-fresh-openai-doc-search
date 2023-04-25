@@ -1,7 +1,6 @@
 import { useRef, useState } from "preact/hooks";
 import { IS_BROWSER } from "$fresh/runtime.ts";
 import { Button } from "../components/Button.tsx";
-import { SSE } from "sse.js";
 import type { CreateCompletionResponse } from "openai";
 
 export default function SearchDialog() {
@@ -11,20 +10,15 @@ export default function SearchDialog() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // @ts-ignore TODO: how to type this?
-  const onSubmit = (e) => {
+  const onSubmit = (e: Event) => {
     e.preventDefault();
     setSearch(inputRef.current!.value);
     console.log(search);
     setAnswer("");
     setIsLoading(true);
 
-    const eventSource = new SSE(`api/vector-search`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      payload: JSON.stringify({ query: search }),
-    });
+    const query = new URLSearchParams({ query: search });
+    const eventSource = new EventSource(`api/vector-search?${query}`);
 
     function handleError<T>(err: T) {
       setIsLoading(false);
@@ -32,11 +26,12 @@ export default function SearchDialog() {
     }
 
     eventSource.addEventListener("error", handleError);
-    eventSource.addEventListener("message", (e: any) => {
+    eventSource.addEventListener("message", (e: MessageEvent) => {
       try {
         setIsLoading(false);
 
         if (e.data === "[DONE]") {
+          eventSource.close();
           return;
         }
 
@@ -48,8 +43,6 @@ export default function SearchDialog() {
         handleError(err);
       }
     });
-
-    eventSource.stream();
 
     setIsLoading(true);
   };
