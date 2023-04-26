@@ -1,4 +1,9 @@
 // @ts-nocheck @todo Fix typings in `extractMetaExport()`
+/**
+ * Note: this file mostly uses NPM specifiers for its imports.
+ * Currently, NPM specifiers are incompatible with Fresh.
+ * This is fine as this file is not used within Fresh in this implementation.
+ */
 import "std/dotenv/load.ts";
 import "xhr";
 import { createClient } from "@supabase/supabase-js";
