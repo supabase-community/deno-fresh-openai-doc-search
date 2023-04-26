@@ -1,5 +1,7 @@
 # fresh project
 
+[![Deploy this example](https://deno.com/docs/deno-deploy-button.svg)](https://dash.deno.com/new?url=https://raw.githubusercontent.com/supabase-community/deno-fresh-openai-doc-search/main/main.ts&env=OPENAI_KEY,SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY)
+
 ## Setup
 
 ```bash
