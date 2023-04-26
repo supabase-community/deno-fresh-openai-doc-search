@@ -1,34 +1,37 @@
-import { useRef, useState } from "preact/hooks";
+import { useSignal } from "@preact/signals";
 import { IS_BROWSER } from "$fresh/runtime.ts";
 import { Button } from "../components/Button.tsx";
 import type { CreateCompletionResponse } from "openai";
 
 export default function SearchDialog() {
-  const [search, setSearch] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [answer, setAnswer] = useState<string>("");
+  const search = useSignal("");
+  const isLoading = useSignal(false);
+  const answer = useSignal("");
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const onSubmit = (e: Event) => {
     e.preventDefault();
-    setSearch(inputRef.current!.value);
-    console.log(search);
-    setAnswer("");
-    setIsLoading(true);
+    console.log(search.value);
+    answer.value = "";
+    isLoading.value = true;
 
-    const query = new URLSearchParams({ query: search });
-    const eventSource = new EventSource(`api/vector-search?${query}`);
+    const eventSource = new SSE(`api/vector-search`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      payload: JSON.stringify({ query: search.value }),
+    });
 
     function handleError<T>(err: T) {
-      setIsLoading(false);
+      isLoading.value = false;
       console.error(err);
     }
 
     eventSource.addEventListener("error", handleError);
     eventSource.addEventListener("message", (e: MessageEvent) => {
       try {
-        setIsLoading(false);
+        isLoading.value = false;
 
         if (e.data === "[DONE]") {
           eventSource.close();
@@ -38,13 +41,13 @@ export default function SearchDialog() {
         const completionResponse: CreateCompletionResponse = JSON.parse(e.data);
         const text = completionResponse.choices[0].text;
 
-        setAnswer((answer) => answer + text);
+        answer.value += text;
       } catch (err) {
         handleError(err);
       }
     });
 
-    setIsLoading(true);
+    isLoading.value = true;
   };
 
   return (
@@ -62,7 +65,7 @@ export default function SearchDialog() {
         </form>
       </div>
       <div class="flex gap-2 w-full">
-        <p>{isLoading ? "Loading..." : answer}</p>
+        <p>{isLoading.value ? "Loading..." : answer}</p>
       </div>
     </>
   );
