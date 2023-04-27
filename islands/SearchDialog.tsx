@@ -1,10 +1,10 @@
 import { useSignal } from "@preact/signals";
+import { useRef } from "preact/hooks";
 import { IS_BROWSER } from "$fresh/runtime.ts";
 import { Button } from "../components/Button.tsx";
 import type { CreateCompletionResponse } from "openai";
 
 export default function SearchDialog() {
-  const search = useSignal("");
   const isLoading = useSignal(false);
   const answer = useSignal("");
 
@@ -12,16 +12,11 @@ export default function SearchDialog() {
 
   const onSubmit = (e: Event) => {
     e.preventDefault();
-    console.log(search.value);
     answer.value = "";
     isLoading.value = true;
 
-    const eventSource = new SSE(`api/vector-search`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      payload: JSON.stringify({ query: search.value }),
-    });
+    const query = new URLSearchParams({ query: inputRef.current!.value });
+    const eventSource = new EventSource(`api/vector-search?${query}`);
 
     function handleError<T>(err: T) {
       isLoading.value = false;
