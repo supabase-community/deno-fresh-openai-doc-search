@@ -1,4 +1,3 @@
-// @ts-nocheck @todo Fix typings in `extractMetaExport()`
 /**
  * Note: this file mostly uses NPM specifiers for its imports.
  * Currently, NPM specifiers are incompatible with Fresh.
@@ -284,7 +283,6 @@ async function generateEmbeddings() {
         .from("dfods_page")
         .select("id, path, checksum, parentPage:parent_page_id(id, path)")
         .filter("path", "eq", path)
-        .limit(1)
         .maybeSingle()
         .throwOnError();
 
@@ -306,7 +304,6 @@ async function generateEmbeddings() {
             .from("dfods_page")
             .select()
             .filter("path", "eq", parentPath)
-            .limit(1)
             .maybeSingle()
             .throwOnError();
 
@@ -335,7 +332,6 @@ async function generateEmbeddings() {
         .from("dfods_page")
         .select()
         .filter("path", "eq", parentPath)
-        .limit(1)
         .maybeSingle()
         .throwOnError();
 
@@ -355,7 +351,6 @@ async function generateEmbeddings() {
           { onConflict: "path" },
         )
         .select()
-        .limit(1)
         .single()
         .throwOnError();
 
@@ -391,7 +386,7 @@ async function generateEmbeddings() {
           await supabaseClient
             .from("dfods_page_section")
             .insert({
-              page_id: page.id,
+              page_id: page!.id,
               slug,
               heading,
               content,
@@ -399,7 +394,6 @@ async function generateEmbeddings() {
               embedding: responseData.embedding,
             })
             .select()
-            .limit(1)
             .single()
             .throwOnError();
         } catch (err) {
@@ -421,7 +415,7 @@ async function generateEmbeddings() {
       await supabaseClient
         .from("dfods_page")
         .update({ checksum })
-        .filter("id", "eq", page.id)
+        .filter("id", "eq", page!.id)
         .throwOnError();
     } catch (err) {
       console.error(
