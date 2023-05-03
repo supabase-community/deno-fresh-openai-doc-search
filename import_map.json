@@ -1,5 +1,6 @@
 {
   "imports": {
+    "@/": "./",
     "$fresh/": "https://deno.land/x/fresh@1.1.5/",
     "commmon-tags": "https://esm.sh/common-tags@1.8.2",
     "gpt3-tokenizer": "https://esm.sh/gpt3-tokenizer@1.1.5",

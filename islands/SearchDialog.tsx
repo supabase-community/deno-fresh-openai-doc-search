@@ -1,7 +1,7 @@
 import { useSignal } from "@preact/signals";
 import { useRef } from "preact/hooks";
 import { IS_BROWSER } from "$fresh/runtime.ts";
-import { Button } from "../components/Button.tsx";
+import { Button } from "@/components/Button.tsx";
 import type { CreateCompletionResponse } from "openai";
 
 export default function SearchDialog() {
