@@ -7,7 +7,7 @@ import { ApplicationError, UserError } from "../../utils/errors.ts";
 import { ensureGetEnv } from "../../utils/env.ts";
 
 const OPENAI_KEY = ensureGetEnv("OPENAI_KEY");
-const SUPABASE_URL = ensureGetEnv("SUPABASE_URL")
+const SUPABASE_URL = ensureGetEnv("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = ensureGetEnv("SUPABASE_SERVICE_ROLE_KEY");
 
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
