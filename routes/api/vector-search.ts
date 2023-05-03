@@ -4,27 +4,14 @@ import { codeBlock, oneLine } from "commmon-tags";
 import GPT3Tokenizer from "gpt3-tokenizer";
 import { Configuration, CreateCompletionRequest, OpenAIApi } from "openai";
 import { ApplicationError, UserError } from "../../utils/errors.ts";
+import { ensureGetEnv } from "../../utils/env.ts";
 
-const openAiKey = Deno.env.get("OPENAI_KEY");
-const supabaseUrl = Deno.env.get("SUPABASE_URL");
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const OPENAI_KEY = ensureGetEnv("OPENAI_KEY");
+const SUPABASE_URL = ensureGetEnv("SUPABASE_URL")
+const SUPABASE_SERVICE_ROLE_KEY = ensureGetEnv("SUPABASE_SERVICE_ROLE_KEY");
 
-if (!openAiKey) {
-  throw new ApplicationError("Missing environment variable OPENAI_KEY");
-}
-
-if (!supabaseUrl) {
-  throw new ApplicationError("Missing environment variable SUPABASE_URL");
-}
-
-if (!supabaseServiceKey) {
-  throw new ApplicationError(
-    "Missing environment variable SUPABASE_SERVICE_ROLE_KEY",
-  );
-}
-
-const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
-const openAiConfiguration = new Configuration({ apiKey: openAiKey });
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const openAiConfiguration = new Configuration({ apiKey: OPENAI_KEY });
 const openai = new OpenAIApi(openAiConfiguration);
 
 export const corsHeaders = {
@@ -137,7 +124,7 @@ export async function handler(req: Request): Promise<Response> {
     // The Fetch API allows for easier response streaming over the OpenAI client.
     const response = await fetch("https://api.openai.com/v1/completions", {
       headers: {
-        Authorization: `Bearer ${openAiKey}`,
+        Authorization: `Bearer ${OPENAI_KEY}`,
         "Content-Type": "application/json",
       },
       method: "POST",
