@@ -1,5 +1,8 @@
 # fresh project
 
+Template for building your own custom ChatGPT style doc search powered by Fresh,
+Deno, OpenAI, and Supabase.
+
 ## Setup
 
 ```bash
