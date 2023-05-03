@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { codeBlock, oneLine } from "commmon-tags";
 import GPT3Tokenizer from "gpt3-tokenizer";
 import { Configuration, CreateCompletionRequest, OpenAIApi } from "openai";
-import { ApplicationError, UserError } from "../../utils/errors.ts";
+import { ApplicationError, UserError } from "@/utils/errors.ts";
 
 const openAiKey = Deno.env.get("OPENAI_KEY");
 const supabaseUrl = Deno.env.get("SUPABASE_URL");

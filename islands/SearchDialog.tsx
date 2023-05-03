@@ -17,28 +17,22 @@ export default function SearchDialog() {
     const query = new URLSearchParams({ query: inputRef.current!.value });
     const eventSource = new EventSource(`api/vector-search?${query}`);
 
-    function handleError<T>(err: T) {
+    eventSource.addEventListener("error", (err) => {
       isLoading.value = false;
       console.error(err);
-    }
-
-    eventSource.addEventListener("error", handleError);
+    });
     eventSource.addEventListener("message", (e: MessageEvent) => {
-      try {
-        isLoading.value = false;
+      isLoading.value = false;
 
-        if (e.data === "[DONE]") {
-          eventSource.close();
-          return;
-        }
-
-        const completionResponse: CreateCompletionResponse = JSON.parse(e.data);
-        const text = completionResponse.choices[0].text;
-
-        answer.value += text;
-      } catch (err) {
-        handleError(err);
+      if (e.data === "[DONE]") {
+        eventSource.close();
+        return;
       }
+
+      const completionResponse: CreateCompletionResponse = JSON.parse(e.data);
+      const text = completionResponse.choices[0].text;
+
+      answer.value += text;
     });
 
     isLoading.value = true;

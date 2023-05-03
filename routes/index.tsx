@@ -1,5 +1,5 @@
 import { Head } from "$fresh/runtime.ts";
-import SearchDialog from "../islands/SearchDialog.tsx";
+import SearchDialog from "@/islands/SearchDialog.tsx";
 
 export default function Home() {
   return (
