@@ -19,6 +19,7 @@ import { u } from "unist-builder";
 import { filter } from "unist-util-filter";
 import type { Content, Root } from "types/mdast";
 import type { ObjectExpression } from "types/estree";
+import { ensureGetEnv } from "../utils/env.ts";
 
 /**
  * Extracts ES literals from an `estree` `ObjectExpression`
@@ -244,19 +245,9 @@ class MarkdownEmbeddingSource extends BaseEmbeddingSource {
 type EmbeddingSource = MarkdownEmbeddingSource;
 
 async function generateEmbeddings() {
-  if (
-    !Deno.env.get("SUPABASE_URL") ||
-    !Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ||
-    !Deno.env.get("OPENAI_KEY")
-  ) {
-    return console.log(
-      "Environment variables NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and OPENAI_KEY are required: skipping embeddings generation",
-    );
-  }
-
   const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    ensureGetEnv("SUPABASE_URL"),
+    ensureGetEnv("SUPABASE_SERVICE_ROLE_KEY"),
     {
       auth: {
         persistSession: false,
@@ -363,7 +354,7 @@ async function generateEmbeddings() {
 
         try {
           const configuration = new Configuration({
-            apiKey: Deno.env.get("OPENAI_KEY"),
+            apiKey: ensureGetEnv("OPENAI_KEY"),
           });
           const openai = new OpenAIApi(configuration);
 
