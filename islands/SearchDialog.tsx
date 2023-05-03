@@ -1,7 +1,6 @@
 import { useSignal } from "@preact/signals";
 import { useRef } from "preact/hooks";
 import { IS_BROWSER } from "$fresh/runtime.ts";
-import { Button } from "../components/Button.tsx";
 import type { CreateCompletionResponse } from "openai";
 
 export default function SearchDialog() {
@@ -18,28 +17,22 @@ export default function SearchDialog() {
     const query = new URLSearchParams({ query: inputRef.current!.value });
     const eventSource = new EventSource(`api/vector-search?${query}`);
 
-    function handleError<T>(err: T) {
+    eventSource.addEventListener("error", (err) => {
       isLoading.value = false;
       console.error(err);
-    }
-
-    eventSource.addEventListener("error", handleError);
+    });
     eventSource.addEventListener("message", (e: MessageEvent) => {
-      try {
-        isLoading.value = false;
+      isLoading.value = false;
 
-        if (e.data === "[DONE]") {
-          eventSource.close();
-          return;
-        }
-
-        const completionResponse: CreateCompletionResponse = JSON.parse(e.data);
-        const text = completionResponse.choices[0].text;
-
-        answer.value += text;
-      } catch (err) {
-        handleError(err);
+      if (e.data === "[DONE]") {
+        eventSource.close();
+        return;
       }
+
+      const completionResponse: CreateCompletionResponse = JSON.parse(e.data);
+      const text = completionResponse.choices[0].text;
+
+      answer.value += text;
     });
 
     isLoading.value = true;
@@ -47,21 +40,22 @@ export default function SearchDialog() {
 
   return (
     <>
-      <div class="flex gap-2 w-full">
-        <form onSubmit={onSubmit}>
-          <input
-            name="search"
-            ref={inputRef}
-            placeholder="Search"
-            disabled={!IS_BROWSER}
-            class={`px-3 py-2 bg-white rounded border(gray-500 2) disabled:(opacity-50 cursor-not-allowed)`}
-          />
-          <Button>Search</Button>
-        </form>
-      </div>
-      <div class="flex gap-2 w-full">
-        <p>{isLoading.value ? "Loading..." : answer}</p>
-      </div>
+      <form onSubmit={onSubmit} class="flex gap-2 w-full mb-4">
+        <input
+          name="search"
+          ref={inputRef}
+          placeholder="Search"
+          disabled={!IS_BROWSER}
+          class={`flex-1 px-4 py-2 bg-white rounded-md border-1 border-gray-300 hover:border-green-400 transition duration-300 outline-none disabled:(opacity-50 cursor-not-allowed)`}
+        />
+        <button
+          disabled={!IS_BROWSER}
+          class="px-4 py-2 rounded-md text-white border-1 border-slate-700/10 bg-gradient-to-r from-green-400 to-blue-500 hover:to-green-700 transition duration-300"
+        >
+          Search
+        </button>
+      </form>
+      <p>{isLoading.value ? "Loading..." : answer}</p>
     </>
   );
 }

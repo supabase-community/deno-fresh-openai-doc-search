@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import { codeBlock, oneLine } from "commmon-tags";
 import GPT3Tokenizer from "gpt3-tokenizer";
 import { Configuration, CreateCompletionRequest, OpenAIApi } from "openai";
-import { ApplicationError, UserError } from "../../utils/errors.ts";
-import { ensureGetEnv } from "../../utils/env.ts";
+import { ensureGetEnv } from "@/utils/env.ts";
+import { ApplicationError, UserError } from "@/utils/errors.ts";
 
 const OPENAI_KEY = ensureGetEnv("OPENAI_KEY");
 const SUPABASE_URL = ensureGetEnv("SUPABASE_URL");
