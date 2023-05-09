@@ -44,7 +44,7 @@ export default function SearchDialog() {
         <input
           name="search"
           ref={inputRef}
-          placeholder="Search"
+          placeholder={`Search: e.g. try "What is pgvector?"`}
           disabled={!IS_BROWSER}
           class={`flex-1 px-4 py-2 bg-white rounded-md border-1 border-gray-300 hover:border-green-400 transition duration-300 outline-none disabled:(opacity-50 cursor-not-allowed)`}
         />
