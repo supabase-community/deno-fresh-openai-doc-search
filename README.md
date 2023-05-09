@@ -83,7 +83,7 @@ Voila, you've got your own custom ChatGPT!
 Building your own custom ChatGPT involves four steps:
 
 1. [⚡️ GitHub Action] Pre-process the knowledge base (your `.mdx` files in your
-   `pages` folder).
+   `docs` folder).
 2. [⚡️ GitHub Action] Store embeddings in Postgres with
    [pgvector](https://supabase.com/docs/guides/database/extensions/pgvector).
 3. [🏃 Runtime] Perform vector similarity search to find the content that's
@@ -105,7 +105,7 @@ sequenceDiagram
     participant DB (pgvector)
     participant OpenAI (API)
     loop 1. Pre-process the knowledge base
-        GitHub Action->>GitHub Action: Chunk .mdx pages into sections
+        GitHub Action->>GitHub Action: Chunk .mdx files into sections
         loop 2. Create & store embeddings
             GitHub Action->>OpenAI (API): create embedding for page section
             OpenAI (API)->>GitHub Action: embedding vector(1536)
